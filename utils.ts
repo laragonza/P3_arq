@@ -1,18 +1,19 @@
-import { LugarModel, KidModel } from "./types.ts";
+import { LocationModel, ChildModel } from "./types.ts";
 
-export const fromModelToKid = (kidDB: KidModel, lugarDB: LugarModel) => ({
-  id: kidDB._id?.toString(),
-  nombre: kidDB.nombre,
-  comportamiento: kidDB.comportamiento,
-  ubicacion: {
-    id: lugarDB._id?.toString(),
-    nombre: lugarDB.nombre,
-    coordenadas: lugarDB.coordenadas,
-    numeroNinosBuenos: lugarDB.numeroNinosBuenos,
+// Transforma datos de los modelos de base de datos a un formato más legible
+export const fromModelToChild = (childDB: ChildModel, locationDB: LocationModel) => ({
+  id: childDB._id?.toString(),
+  name: childDB.name,
+  behavior: childDB.behavior,
+  location: {
+    id: locationDB._id?.toString(),
+    name: locationDB.name,
+    coordinates: locationDB.coordinates,
+    goodKidsCount: locationDB.goodKidsCount,
   },
 });
 
-// Fórmula de Haversine para cálculo de distancias
+// Calcula la distancia entre dos puntos geográficos con Haversine
 export const haversine = (
   lat1: number,
   lon1: number,
@@ -24,13 +25,10 @@ export const haversine = (
 
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
-  const lat1Rad = toRad(lat1);
-  const lat2Rad = toRad(lat2);
 
   const a =
     Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.sin(dLon / 2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
 
-  return R * c; // Distancia en kilómetros
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); // Distancia en km
 };
